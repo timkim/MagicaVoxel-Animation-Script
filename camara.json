@@ -5,44 +5,16 @@
     [ 
         {
             "SecondsPerRender":"10", 
-            "Frames":          "10" ,
+            "Frames":          "30" ,
             "Direction":       "right",
-
-            "X":     "100",
-            "Y":     "200",
-            "Z":     "300",
-            "Zoom":  "300",
-            "Pitch": "-20",
-            "Yaw":   "0",
-            "Roll":  "10"
-        },
-    
-        {
-            "SecondsPerRender":"5", 
-            "Frames":          "10" ,
-            "Direction":       "left",
-
-            "X":     "20",
-            "Y":     "300",
-            "Z":     "100",
-            "Zoom":  "400",
-            "Pitch": "-40",
-            "Yaw":   "50",
-            "Roll":  "-10"
-        },
-
-        {
-            "SecondsPerRender":"3", 
-            "Frames":          "20" ,
-            "Direction":       "right",
-
-            "X":     "300",
-            "Y":     "300",
-            "Z":     "300",
-            "Zoom":  "300",
-            "Pitch": "-90",
-            "Yaw":   "0",
-            "Roll":  "0"
+            "X":     "-30.6",
+            "Y":     "-4.1",
+            "Z":     "19.4",
+            "Zoom":  "900",
+            "Pitch": "0",
+            "Yaw":   "-39.9",
+            "Roll":  "0",
+            "Fov":   "20"
         }
     ]
 }

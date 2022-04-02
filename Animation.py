@@ -42,12 +42,13 @@ def writeToMv():
     pause(True)                                            #Wait until window in Active to start script we dont want the script spamming your discord for 
     keyframenum = 0
   
-
+    print("Going")
     while keyframenum+1 < len(data['keyframe']):
         currentkeyframe = data['keyframe'][keyframenum]
         nextkeyframe = data['keyframe'][keyframenum + 1]
         keyframenum += 1
 
+        print("Setting")
         try:
             frames =          float(currentkeyframe['Frames'])                     
             secondPerRender = float(currentkeyframe['SecondsPerRender'])
@@ -59,7 +60,8 @@ def writeToMv():
             c_x      =          float(currentkeyframe['X'])
             c_y      =          float(currentkeyframe['Y'])
             c_z      =          float(currentkeyframe['Z'])
-           
+            c_fov    =          float(currentkeyframe['Fov'])
+
             n_pitch  =          float(nextkeyframe['Pitch'])
             n_yaw    =          float(nextkeyframe['Yaw'])
             n_zoom   =          float(nextkeyframe['Zoom'])
@@ -67,6 +69,7 @@ def writeToMv():
             n_x      =          float(nextkeyframe['X'])
             n_y      =          float(nextkeyframe['Y'])
             n_z      =          float(nextkeyframe['Z'])
+            n_fov    =          float(nextkeyframe['Fov'])
 
         except ValueError:
             print("Error in config. Did you accidentally input a letter instead of a number?")
@@ -89,6 +92,10 @@ def writeToMv():
                                  
         try: m_pitch = float((c_pitch-n_pitch)/(0-frames))
         except ZeroDivisionError: m_pitch = 0
+
+        try: m_fov = float((c_fov-n_fov)/(0-frames))
+        except ZeroDivisionError: m_fov = 0
+
 
         try:    
             if c_yaw < n_yaw and c_dircetion == "right":    
@@ -113,8 +120,9 @@ def writeToMv():
             c_x = c_x + m_x
             c_y = c_y + m_y
             c_z = c_z + m_z
+            c_fov = c_fov + m_fov
 
-            command = "cam rx "+str(c_pitch)+" | cam ry "+str(c_yaw)+" | cam zoom "+str(c_zoom)+" | cam rz "+str(c_roll) 
+            command = "cam rx "+str(c_pitch)+" | cam ry "+str(c_yaw)+" | cam zoom "+str(c_zoom) +" | cam rz "+str(c_roll) +" | set pt_fov  "+str(c_fov) 
             command2 = "cam x "+str(c_x)+ " | cam y "+str(c_y)+ " | cam z "+str(c_z)
 
             print("Currently on Frame "+str(x+1)+"/"+str(int(frames)))  #Progress
