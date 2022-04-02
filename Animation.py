@@ -181,9 +181,9 @@ def writeToMv():
                 time.sleep(0.4)
 
 def typeKeyFrameNumber(keyFrameNumber):
-    if(keyFrameNumber) > 10
+    if(keyFrameNumber) < 10:
         pydi.press(str(x))
-    else
+    else:
         tens = (keyFrameNumber % 100)
         units = (keyFrameNumber % 10)
         pydi.press(str(tens))
