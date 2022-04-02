@@ -122,36 +122,72 @@ def writeToMv():
             c_z = c_z + m_z
             c_fov = c_fov + m_fov
 
+            commandProgOff = "set pt_auto 0"
+            commandProgOn = "set pt_auto 1"
+            commandFrame = "set a_time " + str(x)
             command = "cam rx "+str(c_pitch)+" | cam ry "+str(c_yaw)+" | cam zoom "+str(c_zoom) +" | cam rz "+str(c_roll) +" | set pt_fov  "+str(c_fov) 
             command2 = "cam x "+str(c_x)+ " | cam y "+str(c_y)+ " | cam z "+str(c_z)
 
             print("Currently on Frame "+str(x+1)+"/"+str(int(frames)))  #Progress
 
-            pause(False)                                     #Find out if Magica is Active
-            pydi.press('f1')                            #Open console
-            pyperclip.copy(command)                     #Copy command paste command into mv
+            pause(False)                                   
+            pydi.press('f1')
             
+            pyperclip.copy(commandProgOff)                     
             pydi.keyDown("ctrl")
             pydi.press("v")
             pydi.keyUp("ctrl")
             pydi.press('enter')
+
+            pyperclip.copy(command)                     
+            pause(False)
+
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
             pyperclip.copy(command2)
             pause(False)
+
             pydi.keyDown("ctrl")
             pydi.press("v")
             pydi.keyUp("ctrl")
             pydi.press('enter')
+
+            pyperclip.copy(commandFrame)                     
+            pause(False)
+                                    
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            pyperclip.copy(commandProgOn)                     
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
             pydi.press('f1')
             time.sleep(secondPerRender)                 #Wait image to render
 
             if bool(data['saveRenders']):
                 pause(False)              
                 pydi.press("6")
+                typeKeyFrameNumber(x)
                 time.sleep(0.4)
                 pydi.press('enter')
                 time.sleep(0.4)
-                
 
+def typeKeyFrameNumber(keyFrameNumber):
+    if(keyFrameNumber) > 10
+        pydi.press(str(x))
+    else
+        tens = (keyFrameNumber % 100)
+        units = (keyFrameNumber % 10)
+        pydi.press(str(tens))
+        pydi.press(str(units))
 
 def pause(firsttime):
     if firsttime:
