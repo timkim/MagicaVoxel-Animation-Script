@@ -215,8 +215,10 @@ def pause(firsttime):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", help="Toggle verbose mode", action="store_true")
+    parser.add_argument("-v", "--verbose", help="Turn on verbose mode", action="store_true")
     parser.add_argument("-c", "--camera", help="Specify camera json path. Defaults to ./camera.json", default="camera.json")
+    parser.add_argument("-d", "--dryRun", help="Dry run on will not attempt to save files", action="store_true")
+    parser.add_argument("-s", "--secondsPerFrame", help="Specify how long to a render per frame in seconds, Defaults to 1 second", type=int, default=1)
     args = parser.parse_args()
 
     if args.verbose:
@@ -225,9 +227,11 @@ def main():
     try:
         with open(args.camera) as json_file:             
             global data
-            data = json.load(json_file) 
+            data = json.load(json_file)
+
         if args.verbose:
-            print(data)
+            print(f"{args.camera}:")
+            print(json.dumps(data, indent=4, sort_keys=True))
 
         json_file.close()                                 
     except:                                                
