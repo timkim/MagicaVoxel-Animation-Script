@@ -9,6 +9,7 @@ import time
 import json
 import sys
 import os
+import argparse
 
 
 def getForegroundWindowTitle() -> Optional[str]:            #Get current active Window
@@ -43,6 +44,8 @@ def writeToMv():
     keyframenum = 0
   
     print("Going")
+    runningFrame = 0
+
     while keyframenum+1 < len(data['keyframe']):
         currentkeyframe = data['keyframe'][keyframenum]
         nextkeyframe = data['keyframe'][keyframenum + 1]
@@ -61,6 +64,7 @@ def writeToMv():
             c_y      =          float(currentkeyframe['Y'])
             c_z      =          float(currentkeyframe['Z'])
             c_fov    =          float(currentkeyframe['Fov'])
+            c_focus  =          float(currentkeyframe['Focus'])
 
             n_pitch  =          float(nextkeyframe['Pitch'])
             n_yaw    =          float(nextkeyframe['Yaw'])
@@ -70,6 +74,8 @@ def writeToMv():
             n_y      =          float(nextkeyframe['Y'])
             n_z      =          float(nextkeyframe['Z'])
             n_fov    =          float(nextkeyframe['Fov'])
+            n_focus  =          float(nextkeyframe['Focus'])
+
 
         except ValueError:
             print("Error in config. Did you accidentally input a letter instead of a number?")
@@ -96,6 +102,8 @@ def writeToMv():
         try: m_fov = float((c_fov-n_fov)/(0-frames))
         except ZeroDivisionError: m_fov = 0
 
+        try: m_focus = float((c_focus-n_focus)/(0-frames))
+        except ZeroDivisionError: m_focus = 0
 
         try:    
             if c_yaw < n_yaw and c_dircetion == "right":    
@@ -121,14 +129,19 @@ def writeToMv():
             c_y = c_y + m_y
             c_z = c_z + m_z
             c_fov = c_fov + m_fov
+            c_focus = c_focus + m_focus
 
             commandProgOff = "set pt_auto 0"
             commandProgOn = "set pt_auto 1"
-            commandFrame = "set a_time " + str(x)
+            commandFrame = "set a_time " + str(runningFrame)
             command = "cam rx "+str(c_pitch)+" | cam ry "+str(c_yaw)+" | cam zoom "+str(c_zoom) +" | cam rz "+str(c_roll) +" | set pt_fov  "+str(c_fov) 
-            command2 = "cam x "+str(c_x)+ " | cam y "+str(c_y)+ " | cam z "+str(c_z)
+            command2 = "cam x "+str(c_x)+ " | cam y "+str(c_y)+ " | cam z "+str(c_z) + " | set pt_focus  "+str(c_focus)
 
             print("Currently on Frame "+str(x+1)+"/"+str(int(frames)))  #Progress
+            print(command)
+            print()
+            print(command2)
+            print()
 
             pause(False)                                   
             pydi.press('f1')
@@ -172,13 +185,16 @@ def writeToMv():
             pydi.press('f1')
             time.sleep(secondPerRender)                 #Wait image to render
 
+            runningFrame += 1
+
             if bool(data['saveRenders']):
                 pause(False)              
                 pydi.press("6")
-                typeKeyFrameNumber(x)
+                typeKeyFrameNumber(runningFrame)
                 time.sleep(0.4)
                 pydi.press('enter')
-                time.sleep(0.4)
+                time.sleep(2.0)
+
 
 def typeKeyFrameNumber(keyFrameNumber):
     if(keyFrameNumber) < 10:
