@@ -29,16 +29,6 @@ def exitprog():
     sys.exit()
 
 def writeToMv():                                                            
-    try:
-        with open('camara.json') as json_file:             #Load Json file
-            global data
-            data = json.load(json_file)                    #Write Json to var
-        json_file.close()                                  #Close Json file
-    except:                                                #If json not found error
-        print("ERROR: You either dont have a camara.json in this folder or you made a mistake.")
-        print("Common issues: you wrote true or false with an uppercaseletter or you got a typo somewhere")
-        exitprog()
-
     print("Please open MagicaVoxel and make sure its in the foreground.")
     pause(True)                                            #Wait until window in Active to start script we dont want the script spamming your discord for 
     keyframenum = 0
@@ -224,7 +214,26 @@ def pause(firsttime):
                 time.sleep(5)              
 
 def main():
-    writeToMv()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", help="Toggle verbose mode", action="store_true")
+    parser.add_argument("-c", "--camera", help="Specify camera json path. Defaults to ./camera.json", default="camera.json")
+    args = parser.parse_args()
+
+    if args.verbose:
+        print(args)
+
+    try:
+        with open(args.camera) as json_file:             
+            global data
+            data = json.load(json_file) 
+        if args.verbose:
+            print(data)
+
+        json_file.close()                                 
+    except:                                                
+        print(f"ERROR: unable to open {args.camera}")
+        exitprog()
+
 
 try:
     main()
