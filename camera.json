@@ -2,31 +2,40 @@
     "keyframes": [
         [
             {
-                "Frames" : 30,
-                "Direction": "right",
-                "point_0":
-                {
-                    "X": "1.0",
-                    "Y": "6.3",
-                    "Z": "29.7",
-                    "Zoom": "67.5",
-                    "Pitch": "-15.9",
-                    "Yaw": "-177.6",
-                    "Roll": "0",
-                    "Fov": "71",
-                    "Focus": "67.3"
-                },
-                "point_1":
-                {
-                    "X": "1.0",
-                    "Y": "6.3",
-                    "Z": "29.7",
-                    "Zoom": "91.5",
-                    "Pitch": "-15.9",
-                    "Yaw": "-177.6",
-                    "Roll": "0",
-                    "Fov": "71",
-                    "Focus": "90.6"
+                "frames": 30,
+                "direction": "right",
+                "camera": {
+                    "x": {
+                        "start": 1.0,
+                        "end": 1.0,
+                        "interpolation": "linear"
+                    },
+                    "y": {
+                        "start": 1.0
+                    },
+                    "z": {
+                        "start": 10.0,
+                        "end": 100.0,
+                        "interpolation": "ease"
+                    },
+                    "zoom": {
+                        "start": 100.0
+                    },
+                    "pitch": {
+                        "start": 0
+                    },
+                    "yaw": {
+                        "start": 0
+                    },
+                    "roll": {
+                        "start": 0
+                    },
+                    "fov": {
+                        "start": 45
+                    },
+                    "focus": {
+                        "start": 100
+                    }
                 }
             }
         ]
