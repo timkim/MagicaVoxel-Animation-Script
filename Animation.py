@@ -257,22 +257,29 @@ def generateCameraData(data):
                 x = data['keyframes'][i]['camera']['x']
                 if 'end' in x: 
                     currentFrameData[currentFrame]['x'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in x:
+                    currentFrameData[currentFrame]['x'] =  x['start']
 
             if 'y' in data['keyframes'][i]['camera']:
                 y = data['keyframes'][i]['camera']['y']
                 if 'end' in y:
                     currentFrameData[currentFrame]['y'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in y:
+                    currentFrameData[currentFrame]['y'] =  y['start']
 
             if 'z' in data['keyframes'][i]['camera']:
                 z = data['keyframes'][i]['camera']['z']
                 if 'end' in z:
                     currentFrameData[currentFrame]['z'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i]['frames'])
-            
+                elif not 'end' in z:
+                    currentFrameData[currentFrame]['z'] =  z['start']
+
             if 'pitch' in data['keyframes'][i]['camera']:
                 pitch = data['keyframes'][i]['camera']['pitch']
                 if 'end' in pitch:
                     currentFrameData[currentFrame]['pitch'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i]['frames'])
-            
+                elif not 'end' in pitch:
+                    currentFrameData[currentFrame]['pitch'] =  pitch['start']       
 
             if 'yaw' in data['keyframes'][i]['camera']:
                 yaw = data['keyframes'][i]['camera']['yaw']
@@ -287,22 +294,36 @@ def generateCameraData(data):
                         currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'] + 360, yaw['end'], data['keyframes'][i]['frames'])
                     elif yaw['start'] > yaw['end'] and yaw['direction'] == 'clockwise':
                         currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in z:
+                    currentFrameData[currentFrame]['yaw'] =  yaw['start']
+
+            if 'roll' in data['keyframes'][i]['camera']:
+                roll = data['keyframes'][i]['camera']['roll']
+                if 'end' in roll:
+                    currentFrameData[currentFrame]['roll'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, roll['start'], roll['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in roll:
+                    currentFrameData[currentFrame]['roll'] =  roll['start']       
 
             if 'zoom' in data['keyframes'][i]['camera']:
                 zoom = data['keyframes'][i]['camera']['zoom']
                 if 'end' in zoom:
                     currentFrameData[currentFrame]['zoom'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in zoom:
+                    currentFrameData[currentFrame]['zoom'] =  zoom['start']
                     
             if 'fov' in data['keyframes'][i]['camera']:
                 fov = data['keyframes'][i]['camera']['fov']
                 if 'end' in fov:
                     currentFrameData[currentFrame]['fov'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in fov:
+                    currentFrameData[currentFrame]['fov'] =  fov['start']
 
             if 'focus' in data['keyframes'][i]['camera']:
                 focus = data['keyframes'][i]['camera']['focus']
                 if 'end' in focus:
                     currentFrameData[currentFrame]['focus'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, focus['start'], focus['end'], data['keyframes'][i]['frames'])
-
+                elif not 'end' in focus:
+                    currentFrameData[currentFrame]['focus'] =  focus['start']
 
 
 
