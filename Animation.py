@@ -247,52 +247,67 @@ def generateCameraData(data):
     # interpolate all camera values for frames size
 
     cameraKeyFrameData = []
+
+    # prob should make these a map function
     for i in range(len(data['keyframes'])):
+        currentFrameData = []
+        currentFrameData = [{} for i in range(data['keyframes'][i]['frames'])] 
+        for currentFrame in range(data['keyframes'][i]['frames']):
+            if 'x' in data['keyframes'][i]['camera']:
+                x = data['keyframes'][i]['camera']['x']
+                if 'end' in x: 
+                    currentFrameData[currentFrame]['x'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i]['frames'])
 
-        for currentFrame in range(data['keyframes'][i][0]['frames']):
-            if 'x' in data['keyframes'][i][0]['camera']:
-                x = data['keyframes'][i][0]['camera']['x']
-                if 'end' in x:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i][0]['frames']))
-                    
-            if 'y' in data['keyframes'][i][0]['camera']:
-                y = data['keyframes'][i][0]['camera']['y']
+            if 'y' in data['keyframes'][i]['camera']:
+                y = data['keyframes'][i]['camera']['y']
                 if 'end' in y:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i][0]['frames']))
+                    currentFrameData[currentFrame]['y'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i]['frames'])
 
-            if 'z' in data['keyframes'][i][0]['camera']:
-                z = data['keyframes'][i][0]['camera']['z']
+            if 'z' in data['keyframes'][i]['camera']:
+                z = data['keyframes'][i]['camera']['z']
                 if 'end' in z:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i][0]['frames']))
-
-            if 'pitch' in data['keyframes'][i][0]['camera']:
-                pitch = data['keyframes'][i][0]['camera']['pitch']
+                    currentFrameData[currentFrame]['z'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i]['frames'])
+            
+            if 'pitch' in data['keyframes'][i]['camera']:
+                pitch = data['keyframes'][i]['camera']['pitch']
                 if 'end' in pitch:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i][0]['frames']))
+                    currentFrameData[currentFrame]['pitch'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i]['frames'])
+            
 
-            if 'roll' in data['keyframes'][i][0]['camera']:
-                roll = data['keyframes'][i][0]['camera']['roll']
-                if 'end' in roll:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, roll['start'], roll['end'], data['keyframes'][i][0]['frames']))
-
-            if 'yaw' in data['keyframes'][i][0]['camera']:
-                yaw = data['keyframes'][i][0]['camera']['yaw']
+            if 'yaw' in data['keyframes'][i]['camera']:
+                yaw = data['keyframes'][i]['camera']['yaw']
                 if 'end' in yaw:
                     # special case in yaw to set direction
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i][0]['frames']))
+                    # TODO: need to mod so it can rotate mulitple times
+                    if yaw['start'] <= yaw['end'] and yaw['direction'] == 'counterclockwise':
+                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
+                    elif yaw['start'] > yaw['end'] and yaw['direction'] == 'counterclockwise':
+                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'] + 360, data['keyframes'][i]['frames'])
+                    elif yaw['start'] <= yaw['end'] and yaw['direction'] == 'clockwise':
+                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'] + 360, yaw['end'], data['keyframes'][i]['frames'])
+                    elif yaw['start'] > yaw['end'] and yaw['direction'] == 'clockwise':
+                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
 
-            if 'zoom' in data['keyframes'][i][0]['camera']:
-                zoom = data['keyframes'][i][0]['camera']['zoom']
+            if 'zoom' in data['keyframes'][i]['camera']:
+                zoom = data['keyframes'][i]['camera']['zoom']
                 if 'end' in zoom:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i][0]['frames']))
-
-            if 'fov' in data['keyframes'][i][0]['camera']:
-                fov = data['keyframes'][i][0]['camera']['fov']
+                    currentFrameData[currentFrame]['zoom'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i]['frames'])
+                    
+            if 'fov' in data['keyframes'][i]['camera']:
+                fov = data['keyframes'][i]['camera']['fov']
                 if 'end' in fov:
-                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i][0]['frames']))
+                    currentFrameData[currentFrame]['fov'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i]['frames'])
+
+            if 'focus' in data['keyframes'][i]['camera']:
+                focus = data['keyframes'][i]['camera']['focus']
+                if 'end' in focus:
+                    currentFrameData[currentFrame]['focus'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, focus['start'], focus['end'], data['keyframes'][i]['frames'])
 
 
-                  
+
+
+        print(currentFrameData)
+    # need to add to frame dict?
 def linear(percent, elapsed, start, end, total):
     # percent 0 - 1.0
     # elapsed time running

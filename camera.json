@@ -1,49 +1,47 @@
 {
     "keyframes": [
-        [
-            {
-                "frames": 30,
-                "animationDelay": 0, 
-                "animationStategy": "every",
-                "camera": {
-                    "x": {
-                        "start": 1.0,
-                        "end": 100.0,
-                        "interpolation": "linear"
-                    },
-                    "y": {
-                        "start": 1.0
-                    },
-                    "z": {
-                        "start": 123,
-                        "end": 256,
-                        "interpolation": "ease"
-                    },
-                    "zoom": {
-                        "start": 100.0
-                    },
-                    "pitch": {
-                        "start": 0,
-                        "end": 180,
-
-                        "delayFrame": 10
-                    },
-                    "yaw": {
-                        "start": 0,
-                        "end": 200,
-                        "direction": "clockwise"
-                    },
-                    "roll": {
-                        "start": 0
-                    },
-                    "fov": {
-                        "start": 45
-                    },
-                    "focus": {
-                        "start": 100
-                    }
+        {
+            "frames": 30,
+            "animationDelay": 0,
+            "animationStategy": "every",
+            "camera": {
+                "x": {
+                    "start": 1.0,
+                    "end": 100.0,
+                    "interpolation": "linear"
+                },
+                "y": {
+                    "start": 125.0,
+                    "end": -25.0
+                },
+                "z": {
+                    "start": 123,
+                    "end": 256,
+                    "interpolation": "ease"
+                },
+                "zoom": {
+                    "start": 100.0
+                },
+                "pitch": {
+                    "start": 0,
+                    "end": 180,
+                    "delayFrame": 10
+                },
+                "yaw": {
+                    "start": 0,
+                    "end": 175,
+                    "direction": "clockwise"
+                },
+                "roll": {
+                    "start": 0
+                },
+                "fov": {
+                    "start": 45
+                },
+                "focus": {
+                    "start": 100
                 }
             }
-        ]
+        }
     ]
 }
