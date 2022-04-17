@@ -217,7 +217,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="Turn on verbose mode", action="store_true")
     parser.add_argument("-c", "--camera", help="Specify camera json path. Defaults to ./camera.json", default="camera.json")
-    parser.add_argument("-d", "--dryRun", help="Dry run on will not attempt to save files", action="store_true")
+    parser.add_argument("-d", "--dryRun", help="Dry run turned on will not attempt to save files", action="store_true")
     parser.add_argument("-s", "--secondsPerFrame", help="Specify how long to a render per frame in seconds, Defaults to 1 second", type=int, default=1)
     args = parser.parse_args()
 
@@ -237,6 +237,69 @@ def main():
     except:                                                
         print(f"ERROR: unable to open {args.camera}")
         exitprog()
+
+    generateCameraData(data)
+
+def generateCameraData(data):
+    # go through json data
+    # loop through keyframes
+    # get all camera settings
+    # interpolate all camera values for frames size
+
+    cameraKeyFrameData = []
+    for i in range(len(data['keyframes'])):
+
+        for currentFrame in range(data['keyframes'][i][0]['frames']):
+            if 'x' in data['keyframes'][i][0]['camera']:
+                x = data['keyframes'][i][0]['camera']['x']
+                if 'end' in x:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i][0]['frames']))
+                    
+            if 'y' in data['keyframes'][i][0]['camera']:
+                y = data['keyframes'][i][0]['camera']['y']
+                if 'end' in y:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i][0]['frames']))
+
+            if 'z' in data['keyframes'][i][0]['camera']:
+                z = data['keyframes'][i][0]['camera']['z']
+                if 'end' in z:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i][0]['frames']))
+
+            if 'pitch' in data['keyframes'][i][0]['camera']:
+                pitch = data['keyframes'][i][0]['camera']['pitch']
+                if 'end' in pitch:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i][0]['frames']))
+
+            if 'roll' in data['keyframes'][i][0]['camera']:
+                roll = data['keyframes'][i][0]['camera']['roll']
+                if 'end' in roll:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, roll['start'], roll['end'], data['keyframes'][i][0]['frames']))
+
+            if 'yaw' in data['keyframes'][i][0]['camera']:
+                yaw = data['keyframes'][i][0]['camera']['yaw']
+                if 'end' in yaw:
+                    # special case in yaw to set direction
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i][0]['frames']))
+
+            if 'zoom' in data['keyframes'][i][0]['camera']:
+                zoom = data['keyframes'][i][0]['camera']['zoom']
+                if 'end' in zoom:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i][0]['frames']))
+
+            if 'fov' in data['keyframes'][i][0]['camera']:
+                fov = data['keyframes'][i][0]['camera']['fov']
+                if 'end' in fov:
+                    print(linear(currentFrame/data['keyframes'][i][0]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i][0]['frames']))
+
+
+                  
+def linear(percent, elapsed, start, end, total):
+    # percent 0 - 1.0
+    # elapsed time running
+    # start at 0%
+    # end at 100%
+    # total length
+    return start+(end-start)*percent
 
 
 try:
