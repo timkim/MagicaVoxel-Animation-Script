@@ -28,7 +28,7 @@ def exitprog():
     input("Press Enter to continue...")
     sys.exit()
 
-def writeToMv():                                                            
+def writeToMvOld():                                                            
     print("Please open MagicaVoxel and make sure its in the foreground.")
     pause(True)                                            #Wait until window in Active to start script we dont want the script spamming your discord for 
     keyframenum = 0
@@ -238,7 +238,8 @@ def main():
         print(f"ERROR: unable to open {args.camera}")
         exitprog()
 
-    generateCameraData(data)
+    cameraKeyFrameData = generateCameraData(data)
+    writeToMV(cameraKeyFrameData)
 
 def generateCameraData(data):
     # go through json data
@@ -326,9 +327,31 @@ def generateCameraData(data):
                     currentFrameData[currentFrame]['focus'] =  focus['start']
 
 
+        cameraKeyFrameData.append(currentFrameData)
 
-        print(currentFrameData)
-    # need to add to frame dict?
+    return cameraKeyFrameData
+
+def mapCameraToCommand(cameraProperty, cameraValue):
+    match cameraProperty:
+        case 'x':
+            return "cam x " + str(cameraValue)
+        case 'y':
+            return "cam y " + str(cameraValue)
+        case 'z':
+            return "cam z " + str(cameraValue)
+        case 'zoom':
+            return "cam zoom " + str(cameraValue)
+        case 'pitch':
+            return "cam rx " + str(cameraValue)
+        case 'yaw':
+            return "cam ry " + str(cameraValue)
+        case 'roll':
+            return "cam rz " + str(cameraValue)
+        case 'fov':
+            return "set pt_fov " + str(cameraValue)
+        case 'focus':
+            return "set pt_focus " + str(cameraValue)
+
 def linear(percent, elapsed, start, end, total):
     # percent 0 - 1.0
     # elapsed time running
@@ -337,6 +360,26 @@ def linear(percent, elapsed, start, end, total):
     # total length
     return start+(end-start)*percent
 
+def writeToMV(cameraKeyFrameData):
+    print("Please open MagicaVoxel and make sure it's in the foreground.")
+    pause(True) # await till active window is MagicaVoxel
+
+
+    keyframenum = 0
+    runningFrame = 0
+
+    # cameraKeyFrameData contains all the info for the scene
+    # camereaScene is each set of keyframes in cameraKeyFrameData
+    # cameraShot is each frame of a camereaScene
+    for cameraIndex, cameraScene in enumerate(cameraKeyFrameData):
+        print(f"Camera Scene Number: {cameraIndex}")
+        for index, cameraShot in enumerate(cameraScene):
+            print(f"Frame Number: {index}")
+            for cameraProperty in cameraShot:
+                print(mapCameraToCommand(cameraProperty, cameraShot[cameraProperty]))
+                # need intermediate function to build commamnds to specific format
+
+    pause(False)  
 
 try:
     main()
