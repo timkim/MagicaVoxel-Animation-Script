@@ -219,6 +219,7 @@ def main():
     parser.add_argument("-c", "--camera", help="Specify camera json path. Defaults to ./camera.json", default="camera.json")
     parser.add_argument("-d", "--dryRun", help="Dry run turned on will not attempt to save files", action="store_true")
     parser.add_argument("-s", "--secondsPerFrame", help="Specify how long to a render per frame in seconds, Defaults to 1 second", type=int, default=1)
+    global args
     args = parser.parse_args()
 
     if args.verbose:
@@ -331,27 +332,6 @@ def generateCameraData(data):
 
     return cameraKeyFrameData
 
-def mapCameraToCommand(cameraProperty, cameraValue):
-    match cameraProperty:
-        case 'x':
-            return "cam x " + str(cameraValue)
-        case 'y':
-            return "cam y " + str(cameraValue)
-        case 'z':
-            return "cam z " + str(cameraValue)
-        case 'zoom':
-            return "cam zoom " + str(cameraValue)
-        case 'pitch':
-            return "cam rx " + str(cameraValue)
-        case 'yaw':
-            return "cam ry " + str(cameraValue)
-        case 'roll':
-            return "cam rz " + str(cameraValue)
-        case 'fov':
-            return "set pt_fov " + str(cameraValue)
-        case 'focus':
-            return "set pt_focus " + str(cameraValue)
-
 def linear(percent, elapsed, start, end, total):
     # percent 0 - 1.0
     # elapsed time running
@@ -359,6 +339,37 @@ def linear(percent, elapsed, start, end, total):
     # end at 100%
     # total length
     return start+(end-start)*percent
+
+def cameraCommandBuilder(cameraCommand, cameraType):
+    cameraCommandArray = []
+    cameraCommandString = ' | '
+    # need better naming type
+    if cameraType=='rotationsFovZoom':
+        if 'pitch' in cameraCommand:
+            cameraCommandArray.append("cam rx " + str(cameraCommand['pitch']))
+        if 'yaw' in cameraCommand:
+            cameraCommandArray.append("cam ry " + str(cameraCommand['yaw']))
+        if 'roll' in cameraCommand:
+            cameraCommandArray.append("cam rz " + str(cameraCommand['roll']))
+        if 'zoom' in cameraCommand:
+            cameraCommandArray.append("cam zoom " + str(cameraCommand['zoom']))
+        if 'fov' in cameraCommand:
+            cameraCommandArray.append("set pt_fov " + str(cameraCommand['fov']))
+    elif cameraType=='xyz':
+        if 'x' in cameraCommand:
+            cameraCommandArray.append("cam x " + str(cameraCommand['x']))
+        if 'y' in cameraCommand:
+            cameraCommandArray.append("cam y " + str(cameraCommand['y']))
+        if 'z' in cameraCommand:
+            cameraCommandArray.append("cam z " + str(cameraCommand['z']))
+    elif cameraType=='focus':
+        if 'focus' in cameraCommand:
+            cameraCommandArray.append("set pt_focus " + str(cameraCommand['focus']))
+
+    cameraCommandString = cameraCommandString.join(cameraCommandArray)
+    return cameraCommandString
+
+
 
 def writeToMV(cameraKeyFrameData):
     print("Please open MagicaVoxel and make sure it's in the foreground.")
@@ -370,14 +381,73 @@ def writeToMV(cameraKeyFrameData):
 
     # cameraKeyFrameData contains all the info for the scene
     # camereaScene is each set of keyframes in cameraKeyFrameData
-    # cameraShot is each frame of a camereaScene
+    # cameraShot is each set of frame of a camereaScene
     for cameraIndex, cameraScene in enumerate(cameraKeyFrameData):
         print(f"Camera Scene Number: {cameraIndex}")
         for index, cameraShot in enumerate(cameraScene):
-            print(f"Frame Number: {index}")
-            for cameraProperty in cameraShot:
-                print(mapCameraToCommand(cameraProperty, cameraShot[cameraProperty]))
-                # need intermediate function to build commamnds to specific format
+            print(f"Rendering Frame Number: {index}/{len(cameraScene)-1}")
+
+            commandPauseRender = "set pt_auto 0"
+            commandResumeRender = "set pt_auto 1"
+            commandRotations = cameraCommandBuilder(cameraShot, 'rotationsFovZoom')
+            commandXYZ = cameraCommandBuilder(cameraShot, 'xyz')
+            commandFocus = cameraCommandBuilder(cameraShot, 'focus')
+            commandAnimationFrame = "set a_time " + str(runningFrame)
+
+            if args.verbose:
+                print(commandRotations)
+                print(commandXYZ)
+                print(commandFocus)
+                print()
+
+            pause(False)                                   
+            pydi.press('f1')
+
+            pyperclip.copy(commandPauseRender)                     
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            pyperclip.copy(commandRotations)                     
+            pause(False)
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+
+            pyperclip.copy(commandXYZ)                     
+            pause(False)
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            pyperclip.copy(commandFocus)                     
+            pause(False)
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            pyperclip.copy(commandAnimationFrame)                     
+            pause(False)
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            pyperclip.copy(commandResumeRender)                     
+            pydi.keyDown("ctrl")
+            pydi.press("v")
+            pydi.keyUp("ctrl")
+            pydi.press('enter')
+
+            runningFrame += 1
+
+            pydi.press('f1')
+            time.sleep(args.secondsPerFrame)   
 
     pause(False)  
 
