@@ -1,45 +1,33 @@
 {
     "keyframes": [
         {
-            "frames": 30,
+            "frames": 60,
             "animationDelay": 0,
             "animationStategy": "every",
             "camera": {
                 "x": {
-                    "start": 1.0,
-                    "end": 100.0,
-                    "interpolation": "linear"
+                    "start": 1.8
                 },
                 "y": {
-                    "start": 125.0,
-                    "end": -25.0
+                    "start": 6.9
                 },
                 "z": {
-                    "start": 123,
-                    "end": 256,
-                    "interpolation": "ease"
+                    "start": 70.4
                 },
                 "zoom": {
-                    "start": 100.0
+                    "start": 149.7
                 },
                 "pitch": {
-                    "start": 0,
-                    "end": 180,
-                    "delayFrame": 10
+                    "start": -9.3
                 },
                 "yaw": {
-                    "start": 0,
-                    "end": 175,
+                    "start": -26.3,
+                    "end": -26.0,
+                    "interpolation": "easeInOut",
                     "direction": "clockwise"
                 },
                 "roll": {
                     "start": 0
-                },
-                "fov": {
-                    "start": 45
-                },
-                "focus": {
-                    "start": 100
                 }
             }
         }

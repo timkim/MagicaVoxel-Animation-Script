@@ -10,7 +10,7 @@ import json
 import sys
 import os
 import argparse
-
+from easing_functions import *
 
 def getForegroundWindowTitle() -> Optional[str]:            #Get current active Window
     hWnd = windll.user32.GetForegroundWindow()
@@ -258,72 +258,91 @@ def generateCameraData(data):
             if 'x' in data['keyframes'][i]['camera']:
                 x = data['keyframes'][i]['camera']['x']
                 if 'end' in x: 
-                    currentFrameData[currentFrame]['x'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in x:
+                        x['interpolation'] = 'linear'
+
+                    currentFrameData[currentFrame]['x'] = interpolate(x['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, x['start'], x['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in x:
                     currentFrameData[currentFrame]['x'] =  x['start']
 
             if 'y' in data['keyframes'][i]['camera']:
                 y = data['keyframes'][i]['camera']['y']
                 if 'end' in y:
-                    currentFrameData[currentFrame]['y'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in y:
+                        y['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['y'] = interpolate(y['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, y['start'], y['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in y:
                     currentFrameData[currentFrame]['y'] =  y['start']
 
             if 'z' in data['keyframes'][i]['camera']:
                 z = data['keyframes'][i]['camera']['z']
                 if 'end' in z:
-                    currentFrameData[currentFrame]['z'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in y:
+                        z['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['z'] = interpolate(z['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in z:
                     currentFrameData[currentFrame]['z'] =  z['start']
 
             if 'pitch' in data['keyframes'][i]['camera']:
                 pitch = data['keyframes'][i]['camera']['pitch']
                 if 'end' in pitch:
-                    currentFrameData[currentFrame]['pitch'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in pitch:
+                        pitch['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['pitch'] = interpolate(pitch['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, pitch['start'], pitch['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in pitch:
                     currentFrameData[currentFrame]['pitch'] =  pitch['start']       
 
             if 'yaw' in data['keyframes'][i]['camera']:
                 yaw = data['keyframes'][i]['camera']['yaw']
                 if 'end' in yaw:
+                    if not 'interpolation' in yaw:
+                        yaw['interpolation'] = 'linear'
                     # special case in yaw to set direction
                     # TODO: need to mod so it can rotate mulitple times
                     if yaw['start'] <= yaw['end'] and yaw['direction'] == 'counterclockwise':
-                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
+                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
                     elif yaw['start'] > yaw['end'] and yaw['direction'] == 'counterclockwise':
-                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'] + 360, data['keyframes'][i]['frames'])
+                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'] + 360, data['keyframes'][i]['frames'])
                     elif yaw['start'] <= yaw['end'] and yaw['direction'] == 'clockwise':
-                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'] + 360, yaw['end'], data['keyframes'][i]['frames'])
+                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'] + 360, yaw['end'], data['keyframes'][i]['frames'])
                     elif yaw['start'] > yaw['end'] and yaw['direction'] == 'clockwise':
-                        currentFrameData[currentFrame]['yaw'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
+                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in z:
                     currentFrameData[currentFrame]['yaw'] =  yaw['start']
 
             if 'roll' in data['keyframes'][i]['camera']:
                 roll = data['keyframes'][i]['camera']['roll']
                 if 'end' in roll:
-                    currentFrameData[currentFrame]['roll'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, roll['start'], roll['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in roll:
+                        roll['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['roll'] = interpolate(roll['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, roll['start'], roll['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in roll:
                     currentFrameData[currentFrame]['roll'] =  roll['start']       
 
             if 'zoom' in data['keyframes'][i]['camera']:
                 zoom = data['keyframes'][i]['camera']['zoom']
                 if 'end' in zoom:
-                    currentFrameData[currentFrame]['zoom'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in zoom:
+                        zoom['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['zoom'] = interpolate(zoom['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, zoom['start'], zoom['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in zoom:
                     currentFrameData[currentFrame]['zoom'] =  zoom['start']
                     
             if 'fov' in data['keyframes'][i]['camera']:
                 fov = data['keyframes'][i]['camera']['fov']
                 if 'end' in fov:
-                    currentFrameData[currentFrame]['fov'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in fov:
+                        fov['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['fov'] = interpolate(fov['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, fov['start'], fov['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in fov:
                     currentFrameData[currentFrame]['fov'] =  fov['start']
 
             if 'focus' in data['keyframes'][i]['camera']:
                 focus = data['keyframes'][i]['camera']['focus']
                 if 'end' in focus:
-                    currentFrameData[currentFrame]['focus'] = linear(currentFrame/data['keyframes'][i]['frames'], currentFrame, focus['start'], focus['end'], data['keyframes'][i]['frames'])
+                    if not 'interpolation' in focus:
+                        focus['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['focus'] = interpolate(focus['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, focus['start'], focus['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in focus:
                     currentFrameData[currentFrame]['focus'] =  focus['start']
 
@@ -332,6 +351,19 @@ def generateCameraData(data):
 
     return cameraKeyFrameData
 
+def interpolate(type, percent, elapsed, start, end, total):
+    match type:
+        case 'linear':
+            return linear(percent, elapsed, start, end, total)
+        case 'easeIn':
+            return easeIn(percent, elapsed, start, end, total)
+        case 'easeOut':
+            return easeOut(percent, elapsed, start, end, total)
+        case 'easeInOut':
+            return easeInOut(percent, elapsed, start, end, total)
+        case _:
+            return linear(percent, elapsed, start, end, total)
+
 def linear(percent, elapsed, start, end, total):
     # percent 0 - 1.0
     # elapsed time running
@@ -339,6 +371,21 @@ def linear(percent, elapsed, start, end, total):
     # end at 100%
     # total length
     return start+(end-start)*percent
+
+def easeIn(percent, elapsed, start, end, total):
+    ease = QuadEaseIn(start, end, total)
+    return ease(elapsed)
+
+
+def easeOut(percent, elapsed, start, end, total):
+    ease = QuadEaseOut(start, end, total)
+    return ease(elapsed)
+
+def easeInOut(percent, elapsed, start, end, total):
+    ease = QuadEaseInOut(start, end, total)
+    return ease(elapsed)
+
+
 
 def cameraCommandBuilder(cameraCommand, cameraType):
     cameraCommandArray = []
@@ -444,12 +491,19 @@ def writeToMV(cameraKeyFrameData):
             pydi.keyUp("ctrl")
             pydi.press('enter')
 
-            runningFrame += 1
-
             pydi.press('f1')
             time.sleep(args.secondsPerFrame)   
 
-    pause(False)  
+            if not args.dryRun:
+                pause(False)              
+                pydi.press("6")
+                typeKeyFrameNumber(runningFrame)
+                time.sleep(0.4)
+                pydi.press('enter')
+                time.sleep(2.0)
+
+            runningFrame += 1
+
 
 try:
     main()
