@@ -1,0 +1,140 @@
+{
+    "keyframes": [
+        {
+            "frames": 40,
+            "animationDelay": 0,
+            "camera": {
+                "x": {
+                    "start": -8
+                },
+                "y": {
+                    "start": -8
+                },
+                "z": {
+                    "start": 30
+                },
+                "zoom": {
+                    "start": 260,
+                    "end": 340,
+                    "interpolation": "easeInOut"
+                },
+                "pitch": {
+                    "start": -18,
+                    "end": -22,
+                    "interpolation": "easeInOut"
+                },
+                "yaw": {
+                    "start": 35,
+                    "end": 50,
+                    "interpolation": "linear"
+                },
+                "roll": {
+                    "start": 0.0
+                }
+            }
+        },
+        {
+            "frames": 60,
+            "animationDelay": 0,
+            "camera": {
+                "x": {
+                    "start": -8
+                },
+                "y": {
+                    "start": -8
+                },
+                "z": {
+                    "start": 30
+                },
+                "zoom": {
+                    "start": 340,
+                    "end": 1200,
+                    "interpolation": "easeInOut"
+                },
+                "pitch": {
+                    "start": -22,
+                    "end": -30,
+                    "interpolation": "easeInOut"
+                },
+                "yaw": {
+                    "start": 50,
+                    "end": 95,
+                    "interpolation": "linear"
+                },
+                "roll": {
+                    "start": 0.0
+                }
+            }
+        },
+        {
+            "frames": 45,
+            "animationDelay": 0,
+            "camera": {
+                "x": {
+                    "start": -8,
+                    "end": 0,
+                    "interpolation": "easeOut"
+                },
+                "y": {
+                    "start": -8,
+                    "end": 0,
+                    "interpolation": "easeOut"
+                },
+                "z": {
+                    "start": 30,
+                    "end": 0,
+                    "interpolation": "easeOut"
+                },
+                "zoom": {
+                    "start": 1200,
+                    "end": 1850,
+                    "interpolation": "easeOut"
+                },
+                "pitch": {
+                    "start": -30,
+                    "end": -32,
+                    "interpolation": "easeOut"
+                },
+                "yaw": {
+                    "start": 95,
+                    "end": 130,
+                    "interpolation": "easeOut"
+                },
+                "roll": {
+                    "start": 0.0
+                }
+            }
+        },
+        {
+            "frames": 20,
+            "animationDelay": 0,
+            "camera": {
+                "x": {
+                    "start": 0
+                },
+                "y": {
+                    "start": 0
+                },
+                "z": {
+                    "start": 0
+                },
+                "zoom": {
+                    "start": 1850,
+                    "end": 1900,
+                    "interpolation": "easeOut"
+                },
+                "pitch": {
+                    "start": -32
+                },
+                "yaw": {
+                    "start": 130,
+                    "end": 135,
+                    "interpolation": "easeOut"
+                },
+                "roll": {
+                    "start": 0.0
+                }
+            }
+        }
+    ]
+}

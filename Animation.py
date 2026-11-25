@@ -24,171 +24,72 @@ def getForegroundWindowTitle() -> Optional[str]:            #Get current active 
         return True
                                                              
 
+MV_TITLE = "MagicaVoxel | Ephtracy"
+
+def foregroundTitle() -> str:
+    hWnd = windll.user32.GetForegroundWindow()
+    length = windll.user32.GetWindowTextLengthW(hWnd)
+    buf = create_unicode_buffer(length + 1)
+    windll.user32.GetWindowTextW(hWnd, buf, length + 1)
+    return buf.value
+
+def waitForTitle(predicate, timeout):
+    end = time.time() + timeout
+    while time.time() < end:
+        title = foregroundTitle()
+        if predicate(title):
+            return title
+        time.sleep(0.1)
+    return None
+
+def pasteLine(text):
+    """Paste one line into the (already focused) console and run it."""
+    pyperclip.copy(text)
+    pydi.keyDown("ctrl"); pydi.press("v"); pydi.keyUp("ctrl")
+    time.sleep(0.1)
+    pydi.press('enter')
+
+def saveSnapshot(name):
+    """Snapshot via the console (`snap scene`, the command the 6 hotkey runs) while the console is still open,
+    wait for the save dialog, paste the whole file name, confirm, and wait for the dialog to close.
+    Pressing 6 relied on the console having been toggled shut with F1; one lost F1 made every later 6 land in
+    the console ("66666"). Closing the save dialog always leaves the console closed, ready for the next frame."""
+    pasteLine("snap scene")
+    dialog = waitForTitle(lambda t: t != MV_TITLE and t != "", args.dialogTimeout)
+    if dialog is None:
+        print(f"WARNING: save dialog did not open for frame {name}; skipping this snapshot")
+        return False
+    time.sleep(0.3)
+    pyperclip.copy(name)
+    pydi.keyDown("ctrl"); pydi.press("a"); pydi.keyUp("ctrl")      # replace the default snap name
+    pydi.keyDown("ctrl"); pydi.press("v"); pydi.keyUp("ctrl")
+    time.sleep(0.2)
+    pydi.press('enter')
+    # Wait for the dialog to close. If Windows asks to confirm an overwrite (re-render), answer Yes.
+    for _ in range(3):
+        back = waitForTitle(lambda t: t == MV_TITLE, args.dialogTimeout)
+        if back is not None:
+            time.sleep(args.afterSaveSeconds)   # let MagicaVoxel finish writing/refocusing before the next F1
+            return True
+        print(f"Frame {name}: '{foregroundTitle()}' is still open (overwrite prompt?) - answering Yes")
+        pydi.keyDown("alt"); pydi.press("y"); pydi.keyUp("alt")
+    print(f"WARNING: could not confirm the save for frame {name}")
+    return False
+
 def exitprog():
     input("Press Enter to continue...")
     sys.exit()
 
-def writeToMvOld():                                                            
-    print("Please open MagicaVoxel and make sure its in the foreground.")
-    pause(True)                                            #Wait until window in Active to start script we dont want the script spamming your discord for 
-    keyframenum = 0
-  
-    print("Going")
-    runningFrame = 0
-
-    while keyframenum+1 < len(data['keyframe']):
-        currentkeyframe = data['keyframe'][keyframenum]
-        nextkeyframe = data['keyframe'][keyframenum + 1]
-        keyframenum += 1
-
-        print("Setting")
-        try:
-            frames =          float(currentkeyframe['Frames'])                     
-            secondPerRender = float(currentkeyframe['SecondsPerRender'])
-            c_dircetion =       currentkeyframe['Direction']
-            c_pitch  =          float(currentkeyframe['Pitch'])
-            c_yaw    =          float(currentkeyframe['Yaw'])
-            c_zoom   =          float(currentkeyframe['Zoom'])
-            c_roll   =          float(currentkeyframe['Roll'])
-            c_x      =          float(currentkeyframe['X'])
-            c_y      =          float(currentkeyframe['Y'])
-            c_z      =          float(currentkeyframe['Z'])
-            c_fov    =          float(currentkeyframe['Fov'])
-            c_focus  =          float(currentkeyframe['Focus'])
-
-            n_pitch  =          float(nextkeyframe['Pitch'])
-            n_yaw    =          float(nextkeyframe['Yaw'])
-            n_zoom   =          float(nextkeyframe['Zoom'])
-            n_roll   =          float(nextkeyframe['Roll'])
-            n_x      =          float(nextkeyframe['X'])
-            n_y      =          float(nextkeyframe['Y'])
-            n_z      =          float(nextkeyframe['Z'])
-            n_fov    =          float(nextkeyframe['Fov'])
-            n_focus  =          float(nextkeyframe['Focus'])
-
-
-        except ValueError:
-            print("Error in config. Did you accidentally input a letter instead of a number?")
-            exitprog()
-
-        try: m_zoom = float((c_zoom-n_zoom)/(0-frames))
-        except ZeroDivisionError: m_zoom = 0  
-
-        try: m_roll = float((c_roll-n_roll)/(0-frames))
-        except ZeroDivisionError: m_roll = 0
-
-        try: m_x = float((c_x-n_x)/(0-frames))
-        except ZeroDivisionError: m_x = 0
-
-        try: m_y = float((c_y-n_y)/(0-frames))
-        except ZeroDivisionError: m_y = 0   
-
-        try: m_z = float((c_z-n_z)/(0-frames))
-        except ZeroDivisionError: m_z = 0   
-                                 
-        try: m_pitch = float((c_pitch-n_pitch)/(0-frames))
-        except ZeroDivisionError: m_pitch = 0
-
-        try: m_fov = float((c_fov-n_fov)/(0-frames))
-        except ZeroDivisionError: m_fov = 0
-
-        try: m_focus = float((c_focus-n_focus)/(0-frames))
-        except ZeroDivisionError: m_focus = 0
-
-        try:    
-            if c_yaw < n_yaw and c_dircetion == "right":    
-                m_yaw = float(((n_yaw-360)-c_yaw)/frames) #not normal right -90 -> 90 
-            elif c_yaw > n_yaw and c_dircetion == "right":    
-                m_yaw = float((n_yaw-c_yaw)/frames) #normal right 0 -> -90    
-            elif c_yaw < n_yaw and c_dircetion == "left":    
-                m_yaw = float((n_yaw-c_yaw)/frames) #normal left -90 -> 90 
-            elif c_yaw > n_yaw and c_dircetion == "left":    
-                m_yaw = float(((n_yaw+360)-c_yaw)/frames) #not normal left 90 -> -90    
-            else:
-               m_yaw = 0
-        except ZeroDivisionError:
-            m_yaw = 0
-
-        t_frames = int(frames)              #Determin how often script is going to run
-        for x in range(t_frames):
-            c_pitch = c_pitch + m_pitch
-            c_yaw = c_yaw + m_yaw
-            c_zoom = c_zoom + m_zoom
-            c_roll = c_roll + m_roll
-            c_x = c_x + m_x
-            c_y = c_y + m_y
-            c_z = c_z + m_z
-            c_fov = c_fov + m_fov
-            c_focus = c_focus + m_focus
-
-            commandProgOff = "set pt_auto 0"
-            commandProgOn = "set pt_auto 1"
-            commandFrame = "set a_time " + str(runningFrame)
-            command = "cam rx "+str(c_pitch)+" | cam ry "+str(c_yaw)+" | cam zoom "+str(c_zoom) +" | cam rz "+str(c_roll) +" | set pt_fov  "+str(c_fov) 
-            command2 = "cam x "+str(c_x)+ " | cam y "+str(c_y)+ " | cam z "+str(c_z) + " | set pt_focus  "+str(c_focus)
-
-            print("Currently on Frame "+str(x+1)+"/"+str(int(frames)))  #Progress
-            print(command)
-            print()
-            print(command2)
-            print()
-
-            pause(False)                                   
-            pydi.press('f1')
-            
-            pyperclip.copy(commandProgOff)                     
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(command)                     
-            pause(False)
-
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(command2)
-            pause(False)
-
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(commandFrame)                     
-            pause(False)
-                                    
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(commandProgOn)                     
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pydi.press('f1')
-            time.sleep(secondPerRender)                 #Wait image to render
-
-            runningFrame += 1
-
-            if bool(data['saveRenders']):
-                pause(False)              
-                pydi.press("6")
-                typeKeyFrameNumber(runningFrame)
-                time.sleep(0.4)
-                pydi.press('enter')
-                time.sleep(2.0)
-
-
 def typeKeyFrameNumber(keyFrameNumber):
     if(keyFrameNumber) < 10:
         pydi.press(str(keyFrameNumber))
+    elif(keyFrameNumber) > 99:
+        hundreds = (keyFrameNumber % 1000)
+        tens = (keyFrameNumber % 100)
+        units = (keyFrameNumber % 10)
+        pydi.press(str(int(hundreds/100)))
+        pydi.press(str(int(tens/10)))
+        pydi.press(str(units))
     else:
         tens = (keyFrameNumber % 100)
         units = (keyFrameNumber % 10)
@@ -219,6 +120,12 @@ def main():
     parser.add_argument("-c", "--camera", help="Specify camera json path. Defaults to ./camera.json", default="camera.json")
     parser.add_argument("-d", "--dryRun", help="Dry run turned on will not attempt to save files", action="store_true")
     parser.add_argument("-s", "--secondsPerFrame", help="Specify how long to a render per frame in seconds, Defaults to 1 second", type=int, default=1)
+    parser.add_argument("-t", "--cameraText", help="Display camera commands and don't save any renders", action="store_true")
+    parser.add_argument("--padding", help="Digits in saved frame names, e.g. 4 -> 0016. Defaults to 4", type=int, default=4)
+    parser.add_argument("--dialogTimeout", help="Seconds to wait for MagicaVoxel's save dialog to open or close. Defaults to 20", type=float, default=20.0)
+    parser.add_argument("--afterSaveSeconds", help="Seconds to wait after the save dialog closes before the next frame. Defaults to 2", type=float, default=2.0)
+    parser.add_argument("--startFrame", help="Skip frames before this overall frame number (to resume an interrupted render). Defaults to 0", type=int, default=0)
+    parser.add_argument("--settleSeconds", help="Seconds to wait after sending a frame's commands before the render timer starts (raise for heavy animated scenes). Defaults to 2", type=float, default=2.0)
     global args
     args = parser.parse_args()
 
@@ -277,7 +184,7 @@ def generateCameraData(data):
             if 'z' in data['keyframes'][i]['camera']:
                 z = data['keyframes'][i]['camera']['z']
                 if 'end' in z:
-                    if not 'interpolation' in y:
+                    if not 'interpolation' in z:
                         z['interpolation'] = 'linear'
                     currentFrameData[currentFrame]['z'] = interpolate(z['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, z['start'], z['end'], data['keyframes'][i]['frames'])
                 elif not 'end' in z:
@@ -297,17 +204,14 @@ def generateCameraData(data):
                 if 'end' in yaw:
                     if not 'interpolation' in yaw:
                         yaw['interpolation'] = 'linear'
-                    # special case in yaw to set direction
-                    # TODO: need to mod so it can rotate mulitple times
-                    if yaw['start'] <= yaw['end'] and yaw['direction'] == 'counterclockwise':
-                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
-                    elif yaw['start'] > yaw['end'] and yaw['direction'] == 'counterclockwise':
-                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'] + 360, data['keyframes'][i]['frames'])
-                    elif yaw['start'] <= yaw['end'] and yaw['direction'] == 'clockwise':
-                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'] + 360, yaw['end'], data['keyframes'][i]['frames'])
-                    elif yaw['start'] > yaw['end'] and yaw['direction'] == 'clockwise':
-                        currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
-                elif not 'end' in z:
+
+                    currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, yaw['start'], yaw['end'], data['keyframes'][i]['frames'])
+                    #if yaw['direction'] == 'clockwise':
+                        #currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, normalise(yaw['start']), normalise(yaw['end']), data['keyframes'][i]['frames'])
+                    #elif yaw['direction'] == 'counterclockwise':
+                        #currentFrameData[currentFrame]['yaw'] = interpolate(yaw['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, normalise(yaw['start']), normaliseNeg(yaw['end']), data['keyframes'][i]['frames'])
+
+                elif not 'end' in yaw:
                     currentFrameData[currentFrame]['yaw'] =  yaw['start']
 
             if 'roll' in data['keyframes'][i]['camera']:
@@ -346,10 +250,24 @@ def generateCameraData(data):
                 elif not 'end' in focus:
                     currentFrameData[currentFrame]['focus'] =  focus['start']
 
+            if 'aperture' in data['keyframes'][i]['camera']:
+                aperture = data['keyframes'][i]['camera']['aperture']
+                if 'end' in aperture:
+                    if not 'interpolation' in aperture:
+                        aperture['interpolation'] = 'linear'
+                    currentFrameData[currentFrame]['aperture'] = interpolate(aperture['interpolation'], currentFrame/data['keyframes'][i]['frames'], currentFrame, aperture['start'], aperture['end'], data['keyframes'][i]['frames'])
+                elif not 'end' in aperture:
+                    currentFrameData[currentFrame]['aperture'] =  aperture['start']
 
         cameraKeyFrameData.append(currentFrameData)
 
     return cameraKeyFrameData
+
+def normalise(val):
+    return 
+
+def normaliseNeg(val):
+    return (val % -360 + -360) % -360
 
 def interpolate(type, percent, elapsed, start, end, total):
     match type:
@@ -360,6 +278,8 @@ def interpolate(type, percent, elapsed, start, end, total):
         case 'easeOut':
             return easeOut(percent, elapsed, start, end, total)
         case 'easeInOut':
+            return easeInOut(percent, elapsed, start, end, total)
+        case 'circularOut':
             return easeInOut(percent, elapsed, start, end, total)
         case _:
             return linear(percent, elapsed, start, end, total)
@@ -383,6 +303,10 @@ def easeOut(percent, elapsed, start, end, total):
 
 def easeInOut(percent, elapsed, start, end, total):
     ease = QuadEaseInOut(start, end, total)
+    return ease(elapsed)
+
+def circularOut(percent, elapsed, start, end, total):
+    ease = CircularEaseOut(start, end, total)
     return ease(elapsed)
 
 
@@ -412,6 +336,9 @@ def cameraCommandBuilder(cameraCommand, cameraType):
     elif cameraType=='focus':
         if 'focus' in cameraCommand:
             cameraCommandArray.append("set pt_focus " + str(cameraCommand['focus']))
+    elif cameraType=='aperture':
+        if 'aperture' in cameraCommand:
+            cameraCommandArray.append("set pt_dof " + str(cameraCommand['aperture']))
 
     cameraCommandString = cameraCommandString.join(cameraCommandArray)
     return cameraCommandString
@@ -419,89 +346,75 @@ def cameraCommandBuilder(cameraCommand, cameraType):
 
 
 def writeToMV(cameraKeyFrameData):
-    print("Please open MagicaVoxel and make sure it's in the foreground.")
+    print("Please open MagicaVoxel and make sure it's in the foreground, in Render mode, with the console NOT active.")
     pause(True) # await till active window is MagicaVoxel
 
 
     keyframenum = 0
     runningFrame = 0
+    animationFrame = 0
+    totalFrames = sum(len(scene) for scene in cameraKeyFrameData)
+    print(f"{totalFrames} frames in {len(cameraKeyFrameData)} camera segment(s)")
+    if args.startFrame:
+        print(f"Resuming from frame {args.startFrame}")
 
     # cameraKeyFrameData contains all the info for the scene
     # camereaScene is each set of keyframes in cameraKeyFrameData
     # cameraShot is each set of frame of a camereaScene
     for cameraIndex, cameraScene in enumerate(cameraKeyFrameData):
-        print(f"Camera Scene Number: {cameraIndex}")
+        if args.verbose:
+            print(f"Camera Scene Number: {cameraIndex}")
         for index, cameraShot in enumerate(cameraScene):
-            print(f"Rendering Frame Number: {index}/{len(cameraScene)-1}")
+            if runningFrame < args.startFrame:          # resuming: skip frames already rendered
+                animationFrame += 1
+                runningFrame += 1
+                continue
+            print(f"Rendering frame {runningFrame}/{totalFrames-1} (segment {cameraIndex}, shot {index+1}/{len(cameraScene)}) -> {runningFrame:0{args.padding}d}.png")
 
             commandPauseRender = "set pt_auto 0"
             commandResumeRender = "set pt_auto 1"
             commandRotations = cameraCommandBuilder(cameraShot, 'rotationsFovZoom')
             commandXYZ = cameraCommandBuilder(cameraShot, 'xyz')
             commandFocus = cameraCommandBuilder(cameraShot, 'focus')
-            commandAnimationFrame = "set a_time " + str(runningFrame)
+            commandAperture = cameraCommandBuilder(cameraShot, 'aperture')
+
+            commandAnimationFrame = "set a_time " + str(int((animationFrame)))
 
             if args.verbose:
                 print(commandRotations)
                 print(commandXYZ)
                 print(commandFocus)
+                print(commandAperture)
                 print()
 
-            pause(False)                                   
-            pydi.press('f1')
-
-            pyperclip.copy(commandPauseRender)                     
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(commandRotations)                     
             pause(False)
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
 
+            if not args.cameraText:
+                # The console is closed here: either the run just started, or MagicaVoxel's save dialog just
+                # closed (which always leaves the console closed). F1 is a toggle, so we only ever press it from
+                # this known state; everything else for the frame goes through the open console.
+                pydi.press('f1')
+                time.sleep(0.3)
 
-            pyperclip.copy(commandXYZ)                     
-            pause(False)
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
+                # Send the whole frame as ONE chained console line. Separate pastes sent while MagicaVoxel was
+                # busy after `set a_time` got dropped, which left progressive rendering paused.
+                parts = [commandPauseRender, commandRotations, commandXYZ, commandFocus, commandAperture,
+                         commandAnimationFrame, commandResumeRender]
+                frameCommand = ' | '.join(p for p in parts if p)
+                if args.verbose:
+                    print(frameCommand)
+                pasteLine(frameCommand)                 # console stays open after Enter
+                time.sleep(args.settleSeconds)          # let heavy scenes finish posing before the render timer starts
+                time.sleep(args.secondsPerFrame)
 
-            pyperclip.copy(commandFocus)                     
-            pause(False)
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
+                if not args.dryRun:
+                    pause(False)
+                    saveSnapshot(f"{runningFrame:0{args.padding}d}")   # closes the console via the save dialog
+                else:
+                    pydi.press('f1')                    # dry run: close the console again ourselves
+                    time.sleep(0.3)
 
-            pyperclip.copy(commandAnimationFrame)                     
-            pause(False)
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pyperclip.copy(commandResumeRender)                     
-            pydi.keyDown("ctrl")
-            pydi.press("v")
-            pydi.keyUp("ctrl")
-            pydi.press('enter')
-
-            pydi.press('f1')
-            time.sleep(args.secondsPerFrame)   
-
-            if not args.dryRun:
-                pause(False)              
-                pydi.press("6")
-                typeKeyFrameNumber(runningFrame)
-                time.sleep(0.4)
-                pydi.press('enter')
-                time.sleep(2.0)
-
+            animationFrame += 1
             runningFrame += 1
 
 
