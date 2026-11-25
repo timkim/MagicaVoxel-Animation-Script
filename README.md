@@ -91,7 +91,7 @@ Each property takes:
 
 - `start` (required): the value at the first frame of the segment.
 - `end` (optional): the value to move toward. Without it, the property stays at `start` for the whole segment.
-- `interpolation` (optional): `linear` (default), `easeIn`, `easeOut` or `easeInOut`. The eased curves are quadratic. Unknown values fall back to `linear`.
+- `interpolation` (optional): `linear` (default), `easeIn`, `easeOut`, `easeInOut` (quadratic curves) or `circularOut` (starts fast, slows sharply into `end`). Unknown values fall back to `linear`.
 
 The last frame of a segment stops one step short of `end`. To get a seamless move, start the next segment at the previous segment's `end` value.
 

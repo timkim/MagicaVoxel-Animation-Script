@@ -280,7 +280,7 @@ def interpolate(type, percent, elapsed, start, end, total):
         case 'easeInOut':
             return easeInOut(percent, elapsed, start, end, total)
         case 'circularOut':
-            return easeInOut(percent, elapsed, start, end, total)
+            return circularOut(percent, elapsed, start, end, total)
         case _:
             return linear(percent, elapsed, start, end, total)
 
